@@ -68,28 +68,37 @@ def paper_trade(ticker, vix_level):
             'buy_time': buy_time
         }
         print(f"[PAPER TRADE] Buying {ticker} at ${buy_price:.2f} | Target +{sell_threshold*100:.1f}%, Stop -{stop_loss*100:.1f}%")
-        update_dashboard_html(ticker, buy_price, buy_time, sell_threshold, stop_loss)
     except:
         print(f"[ERROR] Could not simulate buy for {ticker}")
 
-# Step 6: Generate/Update dashboard.html
-def update_dashboard_html(ticker, price, time, target, stop):
-    row = f"<tr><td>{ticker}</td><td>${price:.2f}</td><td>{time}</td><td>{target*100:.2f}%</td><td>{stop*100:.2f}%</td></tr>"
-    if not os.path.exists(HTML_FILE):
-        with open(HTML_FILE, 'w') as f:
-            f.write("""
-            <html><head><title>Paper Trades Dashboard</title>
-            <style>table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #ccc; padding: 8px; }</style>
-            </head><body><h2>Paper Trades</h2>
-            <table><tr><th>Ticker</th><th>Buy Price</th><th>Buy Time</th><th>Target %</th><th>Stop %</th></tr>
-            """ + row + "</table></body></html>")
-    else:
-        with open(HTML_FILE, 'r') as f:
-            html = f.read()
-        insert_pos = html.find('</table>')
-        updated_html = html[:insert_pos] + row + html[insert_pos:]
-        with open(HTML_FILE, 'w') as f:
-            f.write(updated_html)
+# Step 6: Generate/Update dashboard.html (rewrites whole file)
+def update_dashboard_html():
+    rows = ""
+    for ticker, trade in portfolio.items():
+        rows += f"<tr><td>{ticker}</td><td>${trade['buy_price']:.2f}</td><td>{trade['buy_time']}</td><td>{trade['sell_threshold']*100:.2f}%</td><td>{trade['stop_loss']*100:.2f}%</td></tr>"
+
+    html_content = f"""
+    <html>
+      <head>
+        <title>Paper Trades Dashboard</title>
+        <style>
+          table {{ border-collapse: collapse; width: 100%; }}
+          th, td {{ border: 1px solid #ccc; padding: 8px; text-align: center; }}
+          th {{ background-color: #f2f2f2; }}
+        </style>
+      </head>
+      <body>
+        <h2>Paper Trades</h2>
+        <table>
+          <tr><th>Ticker</th><th>Buy Price</th><th>Time</th><th>Target %</th><th>Stop %</th></tr>
+          {rows}
+        </table>
+      </body>
+    </html>
+    """
+
+    with open(HTML_FILE, "w") as f:
+        f.write(html_content)
 
 # Step 7: Run Screener
 def run_trading_algorithm():
@@ -121,6 +130,7 @@ def run_trading_algorithm():
         print("\nCurrent Paper Portfolio:")
         for symbol, trade in portfolio.items():
             print(f"{symbol}: Bought at ${trade['buy_price']:.2f} on {trade['buy_time']} | Target +{trade['sell_threshold']*100:.1f}%, Stop -{trade['stop_loss']*100:.1f}%")
+        update_dashboard_html()
 
 if __name__ == "__main__":
     run_trading_algorithm()

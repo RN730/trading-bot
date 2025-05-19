@@ -26,14 +26,14 @@ jobs:
         pip install pandas yfinance ta
 
     - name: Run Trading Script
-      run: python Dynamic_Trading_Algo.py  # <-- change to your actual script filename
+      run: python Dynamic_Trading_Algo.py
 
     - name: Commit HTML dashboard
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         git add dashboard.html
-        git commit -m "Update dashboard" || echo "No changes to commit"
+        git diff --cached --quiet || git commit -m "Update dashboard"
         git push
 
     - name: Deploy to GitHub Pages

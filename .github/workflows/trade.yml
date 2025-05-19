@@ -26,7 +26,7 @@ jobs:
         pip install pandas yfinance ta
 
     - name: Run Trading Script
-      run: python your_script.py  # <-- change to your actual script filename
+      run: Dynamic_Trading_Algo.py  # <-- change to your actual script filename
 
     - name: Commit HTML dashboard
       run: |
